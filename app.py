@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+import numpy as np
 
 
 from sqlalchemy.ext.automap import automap_base
@@ -51,13 +52,11 @@ def precipitation():
     session.close()
 
 
-    # Create a dictionary from the row data and append to a list of all_precipitation
-    all_precipitation = []
-    for date, prcp in results:
-        precipitation_dict = {}
-        precipitation_dict["date"] = date
-        precipitation_dict["precipitation"] = prcp
-        all_precipitation.append(precipitation_dict)
+    # Convert list of tuples into normal list
+    all_precipitation = list(np.ravel(results))
+    
+    # Convert the list to Dictionary
+    all_precipitation = {all_precipitation[i]: all_precipitation[i + 1] for i in range(0, len(all_precipitation), 2)} 
 
     return jsonify(all_precipitation)
 
@@ -74,17 +73,8 @@ def stations():
 
     session.close()
 
-    # Alternative 1
     # Convert list of tuples into normal list
-    # all_stations = list(np.ravel(results))
-    
-    
-    # Create a dictionary from the row data and append to a list of all_stations
-    all_stations = []
-    for station in results:
-        station_dict = {}
-        station_dict["station"] = station
-        all_stations.append(station_dict) 
+    all_stations = list(np.ravel(results))
 
     return jsonify(all_stations)
 
@@ -102,17 +92,11 @@ def tobs():
 
     session.close()
 
-    # Alternative 1
     # Convert list of tuples into normal list
-    # all_tobs = list(np.ravel(results))
+    all_tobs = list(np.ravel(results))
 
-    # Create a dictionary from the row data and append to a list of all_tobs
-    all_tobs = []
-    for date, tobs in results:
-        tobs_dict = {}
-        tobs_dict["date"] = date
-        tobs_dict["temperature"] = tobs
-        all_tobs.append(tobs_dict) 
+    # Convert the list to Dictionary
+    all_tobs = {all_tobs[i]: all_tobs[i + 1] for i in range(0, len(all_tobs), 2)} 
 
     return jsonify(all_tobs)
 
@@ -141,6 +125,8 @@ def data_start_date(start_date):
         start_date_tobs_dict["avg_temp"] = avg
         start_date_tobs_dict["max_temp"] = max
         start_date_tobs.append(start_date_tobs_dict) 
+    
+    
     
     return jsonify(start_date_tobs)
 
